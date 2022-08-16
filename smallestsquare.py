@@ -2,21 +2,31 @@ from scipy.spatial import ConvexHull, convex_hull_plot_2d, distance
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import sys
 
-rng = np.random.default_rng()
-points = np.array([[0, 0], [1, 1], [2, 1.5], [3, 1], [4, 0], [
-                  2, -1], [3, -0.5], [3, -1]])
+
+# points = np.array([[0, 0], [1, 1], [2, 1.5], [3, 1], [4, 0], [
+#                  2, -1], [3, -0.5], [3, -1]])
+
+# read inputs
+file = open("square.in", "r")
+sys.stdout = open("square.out", "w")
+points = []
+for x in file.readlines():
+    points.append([float(i) for i in x.split()])
+points = np.array(points)
 hull = ConvexHull(points)
 x = 0
 y = 0
 
 
 # for vertex in hull.vertices:
-#plt.plot(points[vertex, 0], points[vertex, 1], 'bo')
+#    plt.plot(points[vertex, 0], points[vertex, 1], 'bo')
 #plt.plot(points[hull.vertices, 0], points[hull.vertices, 1], 'k-', lw=2)
 # plt.plot(points[[hull.vertices[-1], hull.vertices[0]], 0],
-# points[[hull.vertices[-1], hull.vertices[0]], 1], 'k-', lw=2)
+#    points[[hull.vertices[-1], hull.vertices[0]], 1], 'k-', lw=2)
 
+# Calculate centroid using formula shown here https://en.wikipedia.org/wiki/Centroid#Of_a_polygon
 N = len(hull.vertices)
 hv = hull.vertices
 sum_Cx, sum_Cy = 0, 0
@@ -39,6 +49,8 @@ Cy = factor * sum_Cy
 p = np.array([Cx, Cy])
 p2 = np.array([])
 # plt.plot(Cx,Cy,'ro')
+
+# Draw a line from the centroid to the furthest point on the hull that forms half the diagonal of the square
 max = 0
 for vertex in hull.vertices:
     dist = distance.euclidean(p, points[vertex])
@@ -53,6 +65,7 @@ y1 = point1[1]
 x2 = p2[0]
 y2 = p2[1]
 
+# solve for the rest of the points of the square
 xc = (x1 + x2)/2
 yc = (y1 + y2)/2
 xd = (x1 - x2)/2
@@ -66,9 +79,10 @@ y4 = yc - xd
 mp = (p2 + np.array([x3, y3]))/2
 # plt.plot(mp[0],mp[1],'ro')
 
+# use trig to find rotation
 mpv = mp - p
 
-print(*[np.round(area),np.round(np.degrees(np.arctan2(mpv[1], mpv[0])) % 90)])
+print(*[np.round(area), np.round(np.degrees(np.arctan2(mpv[1], mpv[0])) % 90)])
 # plt.plot(p[0],p[1],'ro')
 # plt.plot(point1[0],point1[1],'ro')
 # plt.plot(x3,y3,'ro')
